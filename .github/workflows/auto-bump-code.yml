@@ -1,0 +1,129 @@
+name: Auto bump Code formula
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tap repository
+        uses: actions/checkout@v4
+
+      - name: Configure git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Resolve latest release
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          latest_tag=$(gh release view --repo just-every/code --json tagName -q .tagName)
+          latest_version=${latest_tag#v}
+          if [[ -z "$latest_version" ]]; then
+            echo "latest_version is empty" >&2
+            exit 1
+          fi
+          current_version=$(grep 'version "' Formula/Code.rb | cut -d '"' -f2)
+          echo "latest_tag=$latest_tag" >> "$GITHUB_OUTPUT"
+          echo "latest_version=$latest_version" >> "$GITHUB_OUTPUT"
+          echo "current_version=$current_version" >> "$GITHUB_OUTPUT"
+          if [[ "$latest_version" == "$current_version" ]]; then
+            echo "Formula already up to date"
+            echo "should_update=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Updating from $current_version to $latest_version"
+            echo "should_update=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Stop if no update required
+        if: steps.release.outputs.should_update != 'true'
+        run: echo "Nothing to update"
+
+      - name: Download release artifacts
+        if: steps.release.outputs.should_update == 'true'
+        run: |
+          set -euo pipefail
+          tag='${{ steps.release.outputs.latest_tag }}'
+          curl -sSL -o code-aarch64.tar.gz "https://github.com/just-every/code/releases/download/${tag}/code-aarch64-apple-darwin.tar.gz"
+          curl -sSL -o code-x86_64.tar.gz "https://github.com/just-every/code/releases/download/${tag}/code-x86_64-apple-darwin.tar.gz"
+
+      - name: Compute checksums
+        if: steps.release.outputs.should_update == 'true'
+        id: shas
+        run: |
+          set -euo pipefail
+          sha_arm64=$(shasum -a 256 code-aarch64.tar.gz | awk '{print $1}')
+          sha_x86_64=$(shasum -a 256 code-x86_64.tar.gz | awk '{print $1}')
+          echo "sha_arm64=$sha_arm64" >> "$GITHUB_OUTPUT"
+          echo "sha_x86_64=$sha_x86_64" >> "$GITHUB_OUTPUT"
+
+      - name: Update formula
+        if: steps.release.outputs.should_update == 'true'
+        env:
+          VERSION: ${{ steps.release.outputs.latest_version }}
+          TAG: ${{ steps.release.outputs.latest_tag }}
+          SHA_ARM64: ${{ steps.shas.outputs.sha_arm64 }}
+          SHA_X86_64: ${{ steps.shas.outputs.sha_x86_64 }}
+        run: |
+          set -euo pipefail
+          ruby <<'RUBY'
+require "pathname"
+path = Pathname.new("Formula/Code.rb")
+text = path.read
+
+version = ENV.fetch("VERSION")
+tag = ENV.fetch("TAG")
+sha_arm64 = ENV.fetch("SHA_ARM64")
+sha_x86_64 = ENV.fetch("SHA_X86_64")
+
+unless text.include?("livecheck do")
+  text = text.sub(/homepage "[^"]+"\n/) do |match|
+    match + "  livecheck do\n    url :stable\n    strategy :github_latest\n  end\n"
+  end
+end
+
+text = text.sub(/version "[^"]+"/, %(version "#{version}"))
+
+text = text.sub(/https:\/\/github\.com\/just-every\/code\/releases\/download\/[^"\n]+\/code-aarch64-apple-darwin\.tar\.gz/,
+                 "https://github.com/just-every/code/releases/download/#{tag}/code-aarch64-apple-darwin.tar.gz")
+text = text.sub(/https:\/\/github\.com\/just-every\/code\/releases\/download\/[^"\n]+\/code-x86_64-apple-darwin\.tar\.gz/,
+                 "https://github.com/just-every/code/releases/download/#{tag}/code-x86_64-apple-darwin.tar.gz")
+
+sha_values = [sha_arm64, sha_x86_64]
+text = text.gsub(/sha256 "[0-9a-f]{64}"/) { %(sha256 "#{sha_values.shift}") }
+
+path.write(text)
+RUBY
+
+      - name: Create pull request
+        if: steps.release.outputs.should_update == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: chore/code-bump-${{ steps.release.outputs.latest_version }}
+          commit-message: "chore(formula): bump code to ${{ steps.release.outputs.latest_version }}"
+          title: "chore: bump code formula to ${{ steps.release.outputs.latest_version }}"
+          body: |
+            ## Summary
+            - bump the Code formula to ${{ steps.release.outputs.latest_version }}
+            - refresh release artifact checksums
+            - update metadata via auto-bump workflow
+
+            Fixes just-every/code#354
+
+            Checksums:
+            - code-aarch64-apple-darwin.tar.gz — ${{ steps.shas.outputs.sha_arm64 }}
+            - code-x86_64-apple-darwin.tar.gz — ${{ steps.shas.outputs.sha_x86_64 }}
+          labels: automated-pr, dependencies
