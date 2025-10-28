@@ -79,33 +79,37 @@ jobs:
         run: |
           set -euo pipefail
           ruby <<'RUBY'
-require "pathname"
-path = Pathname.new("Formula/Code.rb")
-text = path.read
+            require "pathname"
+            path = Pathname.new("Formula/Code.rb")
+            text = path.read
 
-version = ENV.fetch("VERSION")
-tag = ENV.fetch("TAG")
-sha_arm64 = ENV.fetch("SHA_ARM64")
-sha_x86_64 = ENV.fetch("SHA_X86_64")
+            version = ENV.fetch("VERSION")
+            tag = ENV.fetch("TAG")
+            sha_arm64 = ENV.fetch("SHA_ARM64")
+            sha_x86_64 = ENV.fetch("SHA_X86_64")
 
-unless text.include?("livecheck do")
-  text = text.sub(/homepage "[^"]+"\n/) do |match|
-    match + "  livecheck do\n    url :stable\n    strategy :github_latest\n  end\n"
-  end
-end
+            unless text.include?("livecheck do")
+              text = text.sub(/homepage "[^"]+"\n/) do |match|
+                match + "  livecheck do\n    url :stable\n    strategy :github_latest\n  end\n"
+              end
+            end
 
-text = text.sub(/version "[^"]+"/, %(version "#{version}"))
+            text = text.sub(/version "[^"]+"/, %(version "#{version}"))
 
-text = text.sub(/https:\/\/github\.com\/just-every\/code\/releases\/download\/[^"\n]+\/code-aarch64-apple-darwin\.tar\.gz/,
-                 "https://github.com/just-every/code/releases/download/#{tag}/code-aarch64-apple-darwin.tar.gz")
-text = text.sub(/https:\/\/github\.com\/just-every\/code\/releases\/download\/[^"\n]+\/code-x86_64-apple-darwin\.tar\.gz/,
-                 "https://github.com/just-every/code/releases/download/#{tag}/code-x86_64-apple-darwin.tar.gz")
+            text = text.sub(
+              /https:\/\/github\.com\/just-every\/code\/releases\/download\/[^"\n]+\/code-aarch64-apple-darwin\.tar\.gz/,
+              "https://github.com/just-every/code/releases/download/#{tag}/code-aarch64-apple-darwin.tar.gz",
+            )
+            text = text.sub(
+              /https:\/\/github\.com\/just-every\/code\/releases\/download\/[^"\n]+\/code-x86_64-apple-darwin\.tar\.gz/,
+              "https://github.com/just-every/code/releases/download/#{tag}/code-x86_64-apple-darwin.tar.gz",
+            )
 
-sha_values = [sha_arm64, sha_x86_64]
-text = text.gsub(/sha256 "[0-9a-f]{64}"/) { %(sha256 "#{sha_values.shift}") }
+            sha_values = [sha_arm64, sha_x86_64]
+            text = text.gsub(/sha256 "[0-9a-f]{64}"/) { %(sha256 "#{sha_values.shift}") }
 
-path.write(text)
-RUBY
+            path.write(text)
+          RUBY
 
       - name: Create pull request
         if: steps.release.outputs.should_update == 'true'
