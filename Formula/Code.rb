@@ -1,14 +1,14 @@
 class Code < Formula
   desc "Terminal coding agent"
   homepage "https://github.com/just-every/code"
-  version "v0.5.15"
+  version "v0.6.0"
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/just-every/code/releases/download/v0.5.15/code-aarch64-apple-darwin.tar.gz"
-      sha256 "277d66026d7061a59059f8ed81296f46d6f715c036df57eaaaec44dd35a24928"
+      url "https://github.com/just-every/code/releases/download/v0.6.0/code-aarch64-apple-darwin.tar.gz"
+      sha256 "64505697471275c3e114a7d664be9b7f797f757f10403090579b7a7bd0df95f4"
     else
-      url "https://github.com/just-every/code/releases/download/v0.5.15/code-x86_64-apple-darwin.tar.gz"
-      sha256 "4abfa50549776346a0f6eca063869772cad3f6279b9bd59a944a853025829c4d"
+      url "https://github.com/just-every/code/releases/download/v0.6.0/code-x86_64-apple-darwin.tar.gz"
+      sha256 "c5b7a15cb1a666b2f85cc65b88fc295e82857aff998dafd426868d9bb891b1d6"
     end
   end
 
