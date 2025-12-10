@@ -5,10 +5,10 @@ class Code < Formula
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/just-every/code/releases/download/v0.6.1/code-aarch64-apple-darwin.tar.gz"
-      sha256 "2e02ea1139d91116a4473ecb846654eee5e4261287ab2636788877c9ce394dd6"
+      sha256 "d14ae5e8169f353ddd1d85b00cc83b47ef2607d732ea3e271fd4792bc97985f4"
     else
       url "https://github.com/just-every/code/releases/download/v0.6.1/code-x86_64-apple-darwin.tar.gz"
-      sha256 "49706e2f90d15849990c3583185a82d7cbb119cecf821d71cdf4fe68af16a381"
+      sha256 "4f116f58b3bbe87813c52f8862eacb99c40ea8139bc96eea90a3acf2483e3dfa"
     end
   end
 
