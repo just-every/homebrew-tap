@@ -7,9 +7,9 @@ cask "justevery-manager" do
 
   url "https://manager.justevery.com/marketing/agent-release/agent-v#{version.csv.first}/JustEvery.Agent_#{version.csv.second}_#{arch}.dmg"
 
-  name "JustEvery Manager"
-  desc "JustEvery desktop manager"
+  name "Every Manager"
+  desc "Every Manager desktop app"
   homepage "https://github.com/just-every/manager"
 
-  app "JustEvery Agent.app"
+  app "Every Manager.app"
 end

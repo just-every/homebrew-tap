@@ -1,6 +1,6 @@
 # just-every/homebrew-tap
 
-Unofficial tap for Code (terminal coding agent) and JustEvery Manager (desktop app).
+Unofficial tap for Code (terminal coding agent) and Every Manager (desktop app).
 
 ## Usage
 
