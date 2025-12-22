@@ -1,4 +1,4 @@
-cask "justevery-agent" do
+cask "justevery-manager" do
   arch arm: "aarch64", intel: "x64"
 
   version "0.1.2,0.1.0" # tag, artifact version
@@ -7,8 +7,8 @@ cask "justevery-agent" do
 
   url "https://manager.justevery.com/marketing/agent-release/agent-v#{version.csv.first}/JustEvery.Agent_#{version.csv.second}_#{arch}.dmg"
 
-  name "JustEvery Agent"
-  desc "JustEvery desktop agent"
+  name "JustEvery Manager"
+  desc "JustEvery desktop manager"
   homepage "https://github.com/just-every/manager"
 
   app "JustEvery Agent.app"
