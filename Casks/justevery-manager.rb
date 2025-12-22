@@ -1,11 +1,15 @@
 cask "justevery-manager" do
-  arch arm: "aarch64", intel: "x64"
+  version "0.1.3"
 
-  version "0.1.2,0.1.0" # tag, artifact version
-  sha256 arm: "b726c22d1f7b245c52d495639906e6f65054b34f16a39d202d2a6b3df64afa32",
-         intel: "44719a98cea6886aa749b3eebf66f85a80b0eb999a26820a2a2ef75016d83a01"
+  on_arm do
+    sha256 "cda8bc97171dd826292038546b889d27cfa605b24b008d72a817e76402e4ecb6"
+    url "https://manager.justevery.com/marketing/agent-release/agent-v0.1.3/Every.Manager_0.1.3_aarch64.dmg"
+  end
 
-  url "https://manager.justevery.com/marketing/agent-release/agent-v#{version.csv.first}/JustEvery.Agent_#{version.csv.second}_#{arch}.dmg"
+  on_intel do
+    sha256 "361d2e6782e8ec3a757223ef621a9eec98b62d3dec63bb8cb021e53a5a6d7058"
+    url "https://manager.justevery.com/marketing/agent-release/agent-v0.1.3/Every.Manager_0.1.3_x64.dmg"
+  end
 
   name "Every Manager"
   desc "Every Manager desktop app"
