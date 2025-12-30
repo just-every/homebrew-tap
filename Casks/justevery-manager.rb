@@ -1,14 +1,14 @@
 cask "justevery-manager" do
-  version "0.1.67"
+  version "0.1.68"
 
   on_arm do
-    sha256 "d71e2cd27b0aa13ec334bcae646dccb40be2c95b0d419d703b8c86ebcfdb50e3"
-    url "https://manager.justevery.com/marketing/agent-release/agent-v0.1.67/Every.Manager_0.1.67_aarch64.dmg"
+    sha256 "c8c56c6498cf4adbbbe11225cf1ef676be56fe46996892cbc18d5918ec5fabbd"
+    url "https://manager.justevery.com/marketing/agent-release/agent-v0.1.68/Every.Manager_0.1.68_aarch64.dmg"
   end
 
   on_intel do
-    sha256 "22a2fcabc5dbbc887b924104026db1afeb569373deeb7a45cff6cbca5fc023f2"
-    url "https://manager.justevery.com/marketing/agent-release/agent-v0.1.67/Every.Manager_0.1.67_x64.dmg"
+    sha256 "8c3d79f38c35cfa4a3db807ac81f07a23012b6748407ff4e1bba1f3654767540"
+    url "https://manager.justevery.com/marketing/agent-release/agent-v0.1.68/Every.Manager_0.1.68_x64.dmg"
   end
 
   name "Every Manager"
